@@ -1,0 +1,1368 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#141b28">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Great Financial">
+<title>Great Financial Transition</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♛</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --bg:#141b28; --card:#1d2533; --inset:#161d2a; --raise:#263043; --ink:#f1f5f9; --muted:#8f9bb0; --line:#2b3547;
+  --navy:#f1f5f9; --blue:#00b8d9; --green:#22c55e; --brand:#00a76f; --orange:#ffab00; --red:#ff5630;
+  --shadow:none;
+  --side-w:244px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{font-family:"Public Sans",Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);color-scheme:dark}
+body.resizing{cursor:col-resize;user-select:none}
+body.resizing .app{transition:none}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#34405a;border-radius:99px;border:2px solid var(--bg)}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ===== LAYOUT GERAL ===== */
+.app{display:grid;grid-template-columns:var(--side-w) minmax(0,1fr);height:100vh;width:100vw;transition:grid-template-columns .22s ease}
+
+/* ===== MENU LATERAL ===== */
+.side{position:relative;background:var(--bg);border-right:1px dashed var(--line);display:flex;flex-direction:column;gap:6px;padding:0 14px 20px;min-width:0;overflow:hidden}
+.side-top{display:flex;align-items:center;height:58px;flex:0 0 auto;padding:0 2px}
+.side-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.crown{font-size:26px;line-height:1;color:var(--brand)}
+.brand-text{min-width:0;white-space:nowrap;line-height:1.15}
+.brand-text b{display:block;color:var(--brand);font-size:15px;font-weight:800;letter-spacing:.01em}
+.brand-text span{font-size:11px;color:var(--muted);font-weight:500}
+.side-section{font-size:12px;font-weight:800;color:var(--ink);padding:22px 8px 10px;white-space:nowrap}
+.side-nav{display:grid;gap:4px}
+.side-link{width:100%;display:flex;align-items:center;gap:12px;border:0;background:transparent;color:#d5dbe6;border-radius:8px;padding:11px 8px;font:inherit;font-size:14px;font-weight:600;text-align:left;cursor:pointer;white-space:nowrap}
+.side-link:hover{background:#1c2433}
+.side-link.active{background:rgba(0,167,111,.16);color:#4ade9b}
+.side-link .ico{width:20px;height:20px;display:grid;place-items:center;flex:0 0 auto}
+.side-link .ico svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.side-profile{margin-top:34px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;color:var(--muted);font-size:13px;line-height:1.4;white-space:nowrap}
+.avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#00a76f,#00b8d9);color:#fff;font-size:20px;flex:0 0 auto;margin-bottom:6px}
+.side-profile b{color:var(--ink);font-size:13px;font-weight:700}
+.side-profile .ico-only{display:none}
+.side-resizer{position:absolute;top:0;right:-3px;width:7px;height:100%;cursor:col-resize;z-index:5}
+.side-resizer:hover,body.resizing .side-resizer{background:rgba(0,167,111,.25)}
+.side.collapsed{padding:0 10px 20px}
+.side.collapsed .txt,.side.collapsed .brand-text,.side.collapsed .side-section{display:none}
+.side.collapsed .side-top{justify-content:center}
+.side.collapsed .side-link{justify-content:center;padding:11px 0}
+.side.collapsed .side-profile{margin-top:24px}
+.side.collapsed .side-profile .ico-only{display:block}
+
+/* ===== ÁREA PRINCIPAL ===== */
+.main{display:flex;flex-direction:column;height:100vh;min-width:0;padding:0 0 28px;gap:24px;overflow-y:auto;overflow-x:hidden}
+.main>.view{margin:0 32px}
+.topbar{display:flex;gap:18px;align-items:center;justify-content:space-between;flex:0 0 auto;min-height:58px;padding:0 32px;border-bottom:1px dashed var(--line)}
+.top-left{display:flex;align-items:center;gap:14px;min-width:0}
+.icon-btn{flex:0 0 auto;width:34px;height:34px;border-radius:9px;border:0;background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.icon-btn:hover{background:#1c2433;color:var(--ink)}
+.icon-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.side-collapsed-state .icon-btn svg{transform:scaleX(-1)}
+.brand h1{margin:0;font-size:16px;font-weight:700;color:var(--ink);letter-spacing:0}
+.brand p{margin:1px 0 0;color:var(--muted);font-size:12px}
+.top-right{display:flex;align-items:center}
+.top-actions{display:flex;gap:10px;align-items:center}
+.month-pick{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--line);border-radius:8px;padding:2px 4px 2px 12px}
+.month-pick label{font-size:12px;font-weight:700;color:var(--muted)}
+.month-pick select{border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;font-weight:700;padding:7px 6px;cursor:pointer;outline:none}
+.month-pick select option{background:var(--card);color:var(--ink)}
+.btn{border:1px solid transparent;border-radius:8px;padding:9px 14px;font:inherit;font-weight:700;cursor:pointer;background:#fff;color:#141b28;font-size:13px;white-space:nowrap}
+.btn:hover{background:#e6ebf2}
+.btn.secondary{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.secondary:hover{background:#1c2433}
+.top-avatar{width:34px;height:34px;font-size:17px;margin:0}
+input[type=file]{display:none}
+.status{font-size:13px;color:inherit;opacity:.92;line-height:1.45}
+
+/* ===== VIEWS ===== */
+.view{display:none;flex:1;min-height:0;flex-direction:column;gap:20px}
+.view.active{display:flex}
+#viewOverview.active{flex:0 0 auto}
+
+.card{background:var(--card);border:0;border-radius:16px;box-shadow:none;padding:20px;min-height:0;display:flex;flex-direction:column}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex:0 0 auto}
+.section-title h2{font-size:16px;font-weight:700;margin:0;color:var(--ink)}
+.badge{font-size:12px;padding:5px 10px;border-radius:8px;background:rgba(0,184,217,.14);color:#5ad8f0;font-weight:700;white-space:nowrap}
+.chartbox{position:relative;flex:1;min-height:0}
+.good{color:var(--green)} .bad{color:var(--red)} .warn{color:var(--orange)} .blue{color:var(--blue)}
+
+/* ===== VISÃO GERAL ===== */
+.ov-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.hero{grid-column:span 2;border-radius:16px;padding:26px 28px;color:#fff;background:linear-gradient(90deg,#b91c1c 0%,#0a7d6b 100%);display:flex;flex-direction:column;align-items:flex-start;gap:14px;justify-content:center}
+.hero h2{margin:0;font-size:26px;font-weight:700;letter-spacing:-.01em}
+.hero p{margin:0;max-width:520px}
+.hero .btn{margin-top:4px}
+.hl-card .section-title{margin-bottom:8px}
+.hl{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px dashed var(--line)}
+.hl:first-of-type{border-top:0}
+.hl .label{font-size:13px;color:var(--ink);font-weight:600}
+.hl .hint{font-size:12px;color:var(--muted);margin-top:2px}
+.hl .value{font-size:20px;font-weight:700;white-space:nowrap}
+.kpi{padding:20px;gap:18px;justify-content:space-between}
+.kpi-head{display:flex;align-items:center;gap:14px}
+.kpi-ico{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto}
+.kpi-ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.kpi-ico.i-cyan{background:#0b3a63;color:#5ad8f0}
+.kpi-ico.i-green{background:#0b5440;color:#4ade9b}
+.kpi-ico.i-amber{background:#6b3a05;color:#ffc24d}
+.kpi .label{font-size:14px;color:#d5dbe6;font-weight:600}
+.kpi-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.kpi .value{font-size:30px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
+.kpi .hint{font-size:12px;color:var(--muted);font-weight:600;text-align:right;padding-bottom:5px}
+.threshold-note{font-size:11px;color:var(--muted);margin-top:-8px}
+.ov-chart{height:430px}
+.ov-wide{grid-column:span 2}
+.stat-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--inset);border-radius:14px;padding:12px;margin-bottom:16px;flex:0 0 auto}
+.stat{background:var(--card);border-radius:10px;padding:14px 16px}
+.stat:last-child{background:transparent}
+.stat .label{font-size:13px;color:#d5dbe6;font-weight:600;display:flex;align-items:center;gap:8px}
+.stat .label i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.stat .value{font-size:24px;font-weight:600;margin-top:6px;letter-spacing:-.01em}
+
+/* ===== Tabelas ===== */
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;flex:1;min-height:0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:12px;background:#222c3d;color:#aab4c5;font-size:12px;font-weight:700;white-space:nowrap;position:sticky;top:0;z-index:1}
+td{padding:11px 12px;border-top:1px solid var(--line);white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+
+/* ===== Despesas ===== */
+.exp-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:24px;flex:1;min-height:0}
+.mini-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;flex:0 0 auto}
+.mini{background:var(--inset);border-radius:12px;padding:14px}
+.mini .label{font-size:12px;color:var(--muted);font-weight:600}
+.mini .value{font-size:22px;font-weight:700;margin-top:6px}
+.bar-share{height:8px;background:#2b3547;border-radius:999px;overflow:hidden;min-width:90px}
+.bar-share>span{display:block;height:100%;background:var(--brand);border-radius:999px}
+
+/* ===== Mapa de dívidas ===== */
+.debt-selector-wrap{display:flex;gap:14px;align-items:end;margin-bottom:14px;flex:0 0 auto}
+.debt-selector-wrap>div:first-child{min-width:360px}
+.debt-selector-wrap label{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.debt-selector-wrap select{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px 14px;background:var(--inset);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.debt-summary{display:flex;gap:10px;margin-left:auto}
+.debt-summary .pill{background:var(--inset);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--muted);font-weight:600}
+.debt-summary .pill b{display:block;color:var(--ink);font-size:17px;margin-top:2px}
+.debt-detail{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;flex:0 0 auto;margin-bottom:16px}
+.debt-metric{background:var(--inset);border-radius:12px;padding:14px;min-width:0}
+.debt-metric .label{font-size:12px;color:var(--muted);font-weight:600}
+.debt-metric .value{font-size:19px;font-weight:700;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status-row{display:flex;align-items:center;gap:8px;font-weight:700}
+.status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:0 0 auto}
+.status-critical{background:var(--red)} .status-high{background:var(--orange)} .status-medium{background:#ffd166} .status-good{background:var(--green)} .status-neutral{background:#7f8a9b}
+.rank-pill{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font-weight:800;font-size:12px}
+#debtBody tr{cursor:pointer}
+#debtBody tr:hover td{background:#222c3d}
+#debtBody tr.selected td{background:rgba(0,167,111,.14)}
+
+/* ===== Plano mensal ===== */
+.plan-hero{background:linear-gradient(90deg,#b91c1c 0%,#0a7d6b 100%);color:#fff;border-radius:16px;padding:18px 24px;flex:0 0 auto}
+.plan-hero-head{display:flex;justify-content:space-between;gap:16px;align-items:center}
+.plan-hero h2{margin:0;font-size:19px;font-weight:700}
+.plan-hero p{margin:4px 0 0;color:#f3e9e7;font-size:13px}
+.plan-hero .badge{background:rgba(255,255,255,.18);color:#fff}
+.plan-body{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;flex:1;min-height:0}
+.plan-body>.card{overflow:hidden}
+.plan-table{overflow:auto;border:1px solid var(--line);border-radius:12px;flex:1;min-height:0}
+.plan-table th{background:#222c3d;color:#e2e8f0}
+.plan-table td{vertical-align:top}
+.plan-table .money{white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+.monthly-table{container-type:inline-size;overflow:auto}
+.monthly-table table{width:100%;table-layout:fixed;min-width:0}
+.monthly-table tr.current td{background:rgba(0,167,111,.12)}
+.monthly-table td .plan-status{white-space:normal}
+.plan-status{font-size:11px;font-weight:700;border-radius:8px;padding:5px 8px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.plan-status.ok{background:rgba(34,197,94,.16);color:#4ade9b}
+.plan-status.warn{background:rgba(255,171,0,.16);color:#ffc24d}
+.plan-status.bad{background:rgba(255,86,48,.16);color:#ff8f73}
+.plan-status.info{background:rgba(0,184,217,.16);color:#5ad8f0}
+.plan-dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:currentColor}
+.plan-action{font-weight:600;color:var(--ink);line-height:1.35;min-width:0;font-size:11px}
+.plan-note{margin-top:12px;padding:12px 14px;border-radius:12px;background:rgba(255,171,0,.1);border:1px dashed rgba(255,171,0,.4);color:#ffd27a;font-size:12px;line-height:1.5;flex:0 0 auto}
+details.plan-note summary{cursor:pointer;font-weight:700}
+.act-line{font-weight:700;color:var(--ink);font-size:12px;line-height:1.4}
+.act-line .done{color:var(--green)}
+.act-sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}
+.act-warn{color:#ffc24d;font-weight:700;font-size:12px;line-height:1.4}
+.act-bad{color:#ff8f73;font-weight:700;font-size:12px;line-height:1.4}
+.plan-title{flex-wrap:wrap}
+.plan-title h2{margin-right:auto}
+.plan-toggles{display:flex;gap:6px;flex-wrap:wrap}
+.plan-chip{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:5px 11px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.plan-chip.on{background:rgba(0,167,111,.18);border-color:rgba(0,167,111,.5);color:#4ade9b}
+.plan-chip:not(.on){text-decoration:line-through;opacity:.75}
+.monthly-table th,.monthly-table td{padding:9px clamp(4px,.4cqi,9px)}
+.monthly-table th{font-size:clamp(9.5px,.78cqi,12px);white-space:normal!important;vertical-align:bottom;line-height:1.25;overflow-wrap:normal;word-break:normal}
+.monthly-table td{font-size:clamp(10.5px,.92cqi,14px);white-space:normal}
+.monthly-table td.money{white-space:nowrap;font-size:clamp(10px,.78cqi,13px);font-variant-numeric:tabular-nums}
+.monthly-table .plan-action,.monthly-table .act-line,.monthly-table .act-sub,.monthly-table .act-warn,.monthly-table .act-bad{font-size:clamp(10px,.85cqi,13px);overflow-wrap:anywhere}
+.monthly-table .plan-status{white-space:normal;font-size:clamp(9.5px,.8cqi,12px);line-height:1.25;max-width:100%;box-sizing:border-box;padding:4px 7px;gap:5px;overflow-wrap:normal!important;word-break:normal;hyphens:none}
+.monthly-table .plan-status .plan-dot{flex:0 0 auto}
+.monthly-table .lbl-short{display:none}
+@container (max-width:1500px){
+  .monthly-table .lbl-full{display:none}
+  .monthly-table .lbl-short{display:inline}
+}
+.monthly-table thead th{position:sticky;top:0;z-index:2}
+.monthly-table thead .col-row th{top:var(--grp-h,26px)}
+.monthly-table .grp-row th{text-align:center;font-size:clamp(9px,.72cqi,11px);padding:6px 4px;letter-spacing:.04em;border-bottom:1px solid rgba(255,255,255,.14);border-left:2px solid var(--card);color:#fff}
+.monthly-table .grp-row th:first-child{border-left:0}
+.monthly-table th.grp-debts,.monthly-table .col-row th.g-debts{background:#6e2230}
+.monthly-table th.grp-split,.monthly-table .col-row th.g-split{background:#0f5a3a}
+.monthly-table th.grp-plan,.monthly-table .col-row th.g-plan{background:#14527a}
+.monthly-table .grp-row th.grp-month{background:#2d3a52}
+.monthly-table td.g-debts{background:rgba(255,86,48,.06)}
+.monthly-table td.g-split{background:rgba(34,197,94,.06)}
+.monthly-table tr.current td.g-debts,.monthly-table tr.current td.g-split{background:rgba(0,167,111,.14)}
+.monthly-table td.g-split+td.g-debts,.monthly-table td.g-flow+td.g-split,.monthly-table td.g-debts+td.g-plan,.monthly-table td.g-month+td{border-left:2px solid var(--line)}
+.monthly-table td.g-month{position:sticky;left:0;z-index:1;background:var(--card);box-shadow:1px 0 0 var(--line)}
+.monthly-table tr.current td.g-month{background:#1c3a3a}
+.monthly-table thead th.g-month,.monthly-table .grp-row th:first-child{left:0;z-index:4}
+.monthly-table .bal-open{font-weight:800;color:#ff8f73;display:block}
+.monthly-table .bal-zero{font-weight:800;color:var(--green)}
+.monthly-table .bal-none{color:var(--muted)}
+.monthly-table .bal-bar{display:block;height:5px;border-radius:99px;background:rgba(255,86,48,.28);margin:5px 0 0 auto;width:100%;max-width:110px;overflow:hidden}
+.monthly-table .bal-bar>span{display:block;height:100%;background:var(--green);margin-left:0}
+.monthly-table .bal-bar.done{background:rgba(34,197,94,.3)}
+.monthly-table .proj{font-size:10px;color:var(--muted);margin-top:2px;font-weight:600}
+.monthly-table .sub-green{font-size:10px;color:var(--green);margin-top:3px}
+.monthly-table .bal-pct{display:block;font-size:clamp(9px,.68cqi,11px);font-weight:700;color:var(--muted);margin-top:3px}
+.monthly-table .bal-pct.ok{color:var(--green)}
+.monthly-table td.bal{line-height:1.2;font-size:clamp(9.5px,.66cqi,12px)}
+.monthly-table td.bal .bal-zero{display:block}
+.monthly-table td.bal .bal-open,.monthly-table td.bal .bal-zero{font-size:clamp(9.5px,.66cqi,12px);white-space:nowrap;letter-spacing:-.01em}
+.monthly-table td.g-split.money{white-space:nowrap;font-size:clamp(9.5px,.7cqi,12.5px)}
+.prio-wrap{flex:1}
+.prio-table td,.prio-table th{padding:13px 14px;font-size:14px}
+.prio-table td:first-child{width:52px;font-weight:800;font-variant-numeric:tabular-nums}
+.prio-table td:nth-child(2){font-weight:700}
+.prio-table td.num{font-weight:800;font-variant-numeric:tabular-nums}
+.prio-table tr.paid td{color:var(--green)}
+.prio-table tfoot td{position:sticky;bottom:0;background:#222c3d;color:#fff;font-weight:800;border-top:0}
+.prio-source{font-size:11px;color:var(--muted);margin-top:8px;flex:0 0 auto}
+.pv{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border-radius:8px;font-weight:700;font-size:12px;white-space:nowrap}
+.pv::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.pv-urgent{background:rgba(255,86,48,.16);color:#ff8f73}
+.pv-high{background:rgba(255,171,0,.16);color:#ffc24d}
+.pv-medium{background:rgba(255,214,102,.14);color:#ffe08a}
+.pv-planned{background:rgba(0,184,217,.16);color:#5ad8f0}
+.pv-paid{background:rgba(34,197,94,.16);color:#4ade9b}
+.prio-legend{display:flex;gap:10px;align-items:center;margin-top:12px;flex:0 0 auto;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.students-wrap td{padding:7px 12px}
+.debt-detail .debt-metric{padding:10px 14px}
+.debt-detail .debt-metric .value{font-size:17px;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
+.debt-detail .value .pv{font-size:14px;padding:4px 10px}
+@media (max-height:860px),(max-width:1400px){
+  .view.active:not(#viewOverview){min-height:820px}
+}
+@media (max-width:1100px){
+  .ov-grid{grid-template-columns:1fr}
+  .hero,.ov-wide{grid-column:auto}
+  .top-actions .btn.secondary{display:none}
+}
+
+/* ================= MOBILE (celular) ================= */
+@media (max-width:820px){
+  html,body{overflow:hidden}
+  .app{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;height:100vh;height:100dvh}
+  .side{order:2;flex-direction:row;align-items:stretch;gap:0;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));border-right:0;border-top:1px solid var(--line);background:#111723;overflow:visible}
+  .side-top,.side-profile,.side-resizer,.side .side-section,.side.collapsed .side-section{display:none!important}
+  .side-nav{display:flex;width:100%;gap:2px}
+  .side-link,.side.collapsed .side-link{flex:1 1 0;flex-direction:column;justify-content:center;gap:3px;padding:7px 2px;font-size:10.5px;font-weight:600;border-radius:10px;white-space:normal;text-align:center;line-height:1.15}
+  .side .txt,.side.collapsed .txt{display:block}
+  .side-link .ico svg{width:21px;height:21px}
+  .main{height:auto;min-height:0;padding:0 0 20px;gap:14px;-webkit-overflow-scrolling:touch}
+  .main>.view{margin:0 14px}
+  .topbar{flex-wrap:wrap;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 12px;min-height:0;border-bottom:1px dashed var(--line)}
+  .top-left{width:100%}
+  #sideToggle,.brand p,.top-avatar{display:none}
+  .brand h1{font-size:19px}
+  .top-right,.top-actions{width:100%}
+  .top-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .month-pick{grid-column:1/-1;justify-content:space-between}
+  .month-pick select{flex:1;text-align:right}
+  .top-actions .btn{display:block;text-align:center;padding:11px 8px;font-size:12.5px}
+  .top-actions .btn.secondary{display:block}
+  .view,.view.active:not(#viewOverview){flex:0 0 auto!important;min-height:0!important}
+  .card{padding:16px;border-radius:14px}
+  .ov-grid{grid-template-columns:1fr;gap:14px}
+  .hero,.ov-wide{grid-column:auto}
+  .hl-card{order:1}
+  .ov-chart{order:2}
+  .hero{padding:20px;gap:10px}
+  .hero h2{font-size:21px}
+  .hero .btn{display:none}
+  .kpi{gap:12px;padding:16px}
+  .kpi-ico{width:42px;height:42px}
+  .kpi .value{font-size:26px}
+  .ov-chart{height:auto}
+  .chartbox{flex:none;height:280px}
+  .stat-pair{grid-template-columns:1fr 1fr;gap:6px;padding:8px}
+  .stat{padding:10px}
+  .stat .label{font-size:11px}
+  .stat .value{font-size:16px}
+  .exp-grid{grid-template-columns:1fr;gap:14px;flex:none}
+  .mini-kpis{grid-template-columns:1fr 1fr!important}
+  .mini .value{font-size:18px}
+  .table-wrap,.plan-table{flex:0 0 auto;max-height:68vh;-webkit-overflow-scrolling:touch}
+  .students-wrap{max-height:320px}
+  .plan-body{flex:none}
+  .plan-hero{padding:16px}
+  .plan-hero-head{flex-direction:column;align-items:flex-start;gap:8px}
+  .plan-hero h2{font-size:16px}
+  .plan-title{gap:8px}
+  .plan-title h2{width:100%}
+  .debt-selector-wrap{flex-direction:column;align-items:stretch}
+  .debt-selector-wrap>div:first-child{min-width:0}
+  .debt-summary{margin-left:0}
+  .debt-summary .pill{flex:1}
+  .debt-detail{grid-template-columns:1fr 1fr}
+  .section-title{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="side" id="side" aria-label="Menu principal">
+    <div class="side-top">
+      <div class="side-brand">
+        <span class="crown">♛</span>
+        <div class="brand-text"><b>THE GREAT</b><span>Financial Transition</span></div>
+      </div>
+    </div>
+    <div class="side-section txt">Navegação</div>
+    <nav class="side-nav">
+      <button type="button" class="side-link active" data-view="viewOverview" title="Visão Geral"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/></svg></span><span class="txt">Visão Geral</span></button>
+      <button type="button" class="side-link" data-view="viewPlan" title="Plano Mensal"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><span class="txt">Plano Mensal</span></button>
+      <button type="button" class="side-link" data-view="viewExpenses" title="Despesas"><span class="ico"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span><span class="txt">Despesas</span></button>
+      <button type="button" class="side-link" data-view="viewDebts" title="Mapa de Dívidas"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></span><span class="txt">Mapa de Dívidas</span></button>
+    </nav>
+    <div class="side-profile">
+      <div class="avatar">♛</div>
+      <b class="txt">Disciplina hoje,</b>
+      <span class="txt">liberdade amanhã.</span>
+    </div>
+    <div class="side-resizer" id="sideResizer" title="Arraste para ajustar a largura do menu"></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="top-left">
+        <button type="button" class="icon-btn" id="sideToggle" title="Recolher / expandir menu" aria-label="Recolher ou expandir menu"><svg viewBox="0 0 24 24"><path d="M4 5v14"/><path d="M9 12h11M16 8l4 4-4 4"/></svg></button>
+        <div class="brand">
+          <h1 id="viewTitle">Visão Geral</h1>
+          <p id="viewSubtitle">Renda, despesas e saldo do mês selecionado</p>
+        </div>
+      </div>
+      <div class="top-right">
+        <div class="top-actions">
+          <div class="month-pick">
+            <label for="monthSelect">Mês</label>
+            <select id="monthSelect" aria-label="Selecionar mês">
+              <option value="Jan">Janeiro</option><option value="Fev">Fevereiro</option><option value="Mar">Março</option>
+              <option value="Abril">Abril</option><option value="Maio">Maio</option><option value="Junho">Junho</option>
+              <option value="Julho">Julho</option><option value="Agosto">Agosto</option><option value="Setembro">Setembro</option>
+              <option value="Outubro">Outubro</option><option value="Novembro">Novembro</option><option value="Dezembro">Dezembro</option>
+            </select>
+          </div>
+          <label class="btn" for="fileInput" title="Selecione o Excel uma vez: depois, cada vez que você salvar a planilha, o site se atualiza sozinho">↻ Atualizar com Excel</label>
+          <input id="fileInput" type="file" accept=".xlsx,.xls">
+          <button class="btn secondary" id="resetBtn" title="Recarrega a última planilha que você colocou">Restaurar última planilha</button>
+          <div class="avatar top-avatar" aria-hidden="true">♛</div>
+        </div>
+      </div>
+    </header>
+
+<!-- ================= VISÃO GERAL ================= -->
+    <section class="view active" id="viewOverview">
+      <div class="ov-grid">
+        <div class="hero">
+          <h2>👋 Olá, bem-vindo de volta</h2>
+          <p>Acompanhe renda, despesas e saldo do mês. Disciplina hoje, liberdade amanhã.</p>
+          <div id="fileStatus" class="status">Sistema zerado — clique em “Atualizar com Excel”</div>
+          <button type="button" class="btn" id="heroLoad">Atualizar com Excel</button>
+        </div>
+
+        <div class="card hl-card">
+          <div class="section-title"><h2>Destaques do mês</h2><span class="badge" id="compositionMonth">Mês</span></div>
+          <div class="hl"><div><div class="label">Comprometimento</div><div class="hint">despesas ÷ renda</div></div><div class="value" id="kCommit">—</div></div>
+          <div class="hl"><div><div class="label">Renda de aulas</div><div class="hint" id="kClassesHint">—</div></div><div class="value" id="kClasses">—</div></div>
+          <div class="hl"><div><div class="label">Renda Uber</div><div class="hint" id="kUberHint">—</div></div><div class="value" id="kUber">—</div></div>
+        </div>
+
+        <div class="card kpi">
+          <div class="kpi-head"><span class="kpi-ico i-cyan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.7 2.5-1.7s2.5.7 2.5 1.7-1 1.5-2.5 1.8-2.5.8-2.5 1.8 1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/></svg></span><span class="label">Renda do mês</span></div>
+          <div class="kpi-foot"><div class="value" id="kIncome">—</div><div class="hint" id="kIncomeHint">—</div></div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-head"><span class="kpi-ico i-amber"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span><span class="label">Despesas do mês</span></div>
+          <div class="kpi-foot"><div class="value" id="kExpenses">—</div><div class="hint"><span id="kEssentialValue">—</span> essenciais</div></div>
+          <div class="threshold-note">Meta de essenciais: até R$ 6.958,80</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-head"><span class="kpi-ico i-green"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span><span class="label">Saldo mensal</span></div>
+          <div class="kpi-foot"><div class="value" id="kBalance">—</div><div class="hint" id="kBalanceHint">—</div></div>
+        </div>
+
+        <div class="card ov-chart ov-wide">
+          <div class="section-title"><h2>Fluxo de caixa mensal</h2><span class="badge">Renda × Despesas</span></div>
+          <div class="stat-pair">
+            <div class="stat"><div class="label"><i style="background:#22c55e"></i>Renda no ano</div><div class="value" id="cfIncome">—</div></div>
+            <div class="stat"><div class="label"><i style="background:#ffab00"></i>Despesas no ano</div><div class="value" id="cfExpenses">—</div></div>
+          </div>
+          <div class="chartbox"><canvas id="cashChart"></canvas></div>
+        </div>
+        <div class="card ov-chart">
+          <div class="section-title"><h2>Composição da renda</h2></div>
+          <div class="chartbox"><canvas id="incomeChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PLANO MENSAL ================= -->
+    <section class="view" id="viewPlan">
+      <div class="plan-hero">
+        <div class="plan-hero-head">
+          <div>
+            <h2>PLANO MENSAL — Projeção Financeira Atualizada</h2>
+            <p>Primeiro protege o valor para viver; depois usa a sobra para quitar o cheque especial e seguir a ordem de prioridades.</p>
+          </div>
+          <span class="badge" id="planPeriodBadge">NOV/26 → JUL/27</span>
+        </div>
+      </div>
+
+      <div class="plan-body">
+        <div class="card">
+          <div class="section-title plan-title"><h2>Plano mensal detalhado</h2><div class="plan-toggles" id="planToggles" aria-label="Mostrar ou ocultar grupos de colunas"></div><span class="badge" id="planSelectedBadge">Meta para viver: R$ 1.250,00</span></div>
+          <div class="plan-table monthly-table">
+            <table id="monthlyPlanTable">
+              <colgroup id="monthlyPlanCols"></colgroup>
+              <thead id="monthlyPlanHead"></thead>
+              <tbody id="monthlyPlanBody"></tbody>
+            </table>
+          </div>
+          <details class="plan-note"><summary>Como esta projeção é calculada</summary><div id="planAssumptionNote" style="margin-top:6px"></div></details>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= DESPESAS ================= -->
+    <section class="view" id="viewExpenses">
+      <div class="exp-grid">
+        <div class="card">
+          <div class="section-title"><h2>Controle de gastos — Essenciais × não essenciais</h2><span class="badge" id="expMonthBadge">—</span></div>
+          <div class="mini-kpis">
+            <div class="mini"><div class="label">Essenciais</div><div class="value" id="eEssential">—</div></div>
+            <div class="mini"><div class="label">Não essenciais</div><div class="value warn" id="eNonessential">—</div></div>
+            <div class="mini"><div class="label">Total de despesas</div><div class="value" id="eTotal">—</div></div>
+            <div class="mini"><div class="label">% não essenciais</div><div class="value" id="eShare">—</div></div>
+          </div>
+          <div class="chartbox"><canvas id="expenseChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="section-title"><h2>Top clientes — todos os alunos</h2><span class="badge" id="studentsMonthBadge">—</span></div>
+          <div class="mini-kpis" style="grid-template-columns:repeat(2,1fr)">
+            <div class="mini"><div class="label">Receita de aulas</div><div class="value blue" id="sTotal">—</div></div>
+            <div class="mini"><div class="label">Qtd. de alunos</div><div class="value" id="sCount">—</div></div>
+            <div class="mini"><div class="label">Média por aluno</div><div class="value" id="sAvg">—</div></div>
+            <div class="mini"><div class="label">Top 5 concentra</div><div class="value" id="sTop5">—</div></div>
+          </div>
+          <div class="table-wrap students-wrap">
+            <table><thead><tr><th>#</th><th>Aluno</th><th class="num">Mensal</th><th class="num">% aulas</th><th></th></tr></thead><tbody id="studentsBody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MAPA DE DÍVIDAS ================= -->
+    <section class="view" id="viewDebts">
+      <div class="card" style="flex:1">
+        <div class="section-title"><h2>Mapa de dívidas</h2><span class="badge">DÍVIDA ZERO • ordem de pagamento</span></div>
+        <div class="debt-selector-wrap">
+          <div>
+            <label for="debtSelect">Selecionar dívida</label>
+            <select id="debtSelect" aria-label="Selecionar dívida"></select>
+          </div>
+          <div class="debt-summary">
+            <div class="pill">Valor total<b id="debtTotal">—</b></div>
+            <div class="pill">Qtd. dívidas<b id="debtCount">—</b></div>
+          </div>
+        </div>
+        <div id="debtFocusPanel" class="debt-detail" aria-live="polite"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Dívida</th><th>Status</th><th class="num">Saldo</th><th class="num">% do total</th><th class="num">Quitação prevista</th><th>Tipo</th><th>Prioridade visual</th></tr></thead>
+            <tbody id="debtBody"></tbody>
+          </table>
+        </div>
+        <div class="prio-legend" id="prioLegend"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const MONTHS_ZERO = ["Jan","Fev","Mar","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const DEFAULT_MONTHLY = MONTHS_ZERO.map(month=>({month,income:0,expenses:0,essential:0,nonessential:0,classes:0,uber:0,other:0,balance:0,expenseItems:[]}));
+const DEFAULT_STUDENTS = [];
+const DEFAULT_DEBTS_RAW = [];
+const MONTH_ORDER = ["Jan","Fev","Mar","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const MONTH_LABELS = {Jan:"JAN",Fev:"FEV",Mar:"MAR",Abril:"ABR",Maio:"MAI",Junho:"JUN",Julho:"JUL",Agosto:"AGO",Setembro:"SET",Outubro:"OUT",Novembro:"NOV",Dezembro:"DEZ"};
+/* ===== Regras do plano (ajuste aqui se quiser mudar) ===== */
+const PLAN_START = {year:2026, monthIndex:10};  // NOV/2026 (outubro já passou: o que ficou em aberto está no Mapa de Dívidas)
+const PLAN_END   = {year:2027, monthIndex:6};   // JUL/2027
+const LIVING_TARGET   = 1250;   // meta "para viver" por mês — sempre protegida primeiro
+const RESERVE_TARGET  = 5000;   // reserva mínima
+const RESERVE_AFTER   = 99;     // a reserva só entra depois de TODAS as dívidas do Mapa
+const OVERDRAFT_RATE  = 0.08;   // juros do cheque especial ao mês
+const SANTANDER_KNOWN_SCHEDULE = {
+  "2026-09":1531.87,"2026-10":877.85,"2026-11":430.85,"2026-12":430.85,
+  "2027-01":130.86,"2027-02":130.86,"2027-03":130.86,"2027-04":130.86,"2027-05":130.86,"2027-06":130.86
+};
+const VIEW_META = {
+  viewOverview:["Visão Geral","Renda, despesas e saldo do mês selecionado"],
+  viewPlan:["Plano Mensal","Projeção NOV/2026 → JUL/2027 com os dados da planilha carregada"],
+  viewExpenses:["Despesas","Controle de gastos e top clientes do mês selecionado"],
+  viewDebts:["Dívida Zero","Mapa de dívidas em ordem de prioridade"]
+};
+
+let state = {
+  monthly:structuredClone(DEFAULT_MONTHLY), students:structuredClone(DEFAULT_STUDENTS),
+  studentsByMonth:{}, monthly2027:[], debts:[], debtSource:"", file:""
+};
+let selectedMonth=null;
+let selectedDebtPos=0;
+let charts={};
+if(window.Chart){Chart.defaults.color="#8f9bb0";Chart.defaults.font.family="'Public Sans',Inter,system-ui,sans-serif";Chart.defaults.borderColor="rgba(143,155,176,.18)";}
+
+const brl = n => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(n||0));
+const pct = n => new Intl.NumberFormat("pt-BR",{style:"percent",maximumFractionDigits:1}).format(Number(n||0));
+const norm = v => String(v??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toUpperCase();
+const isNum = v => typeof v==="number" && Number.isFinite(v);
+const cleanDesc = s => String(s||"").replace(/PRIVATE CLASS\s*-?/i,"").replace(/-\s*PARTICULAR/i,"").trim();
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function setText(id,t){const el=document.getElementById(id); if(el) el.textContent=t}
+
+/* ================= NAVEGAÇÃO ENTRE VIEWS ================= */
+function showView(id){
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
+  document.querySelectorAll(".side-link").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
+  const meta=VIEW_META[id]||["",""];
+  setText("viewTitle",meta[0]); setText("viewSubtitle",meta[1]);
+  try{localStorage.setItem("tgft_view",id)}catch(e){}
+  requestAnimationFrame(()=>Object.values(charts).forEach(c=>{try{c.resize();c.update("none")}catch(e){}}));
+  if(id==="viewPlan"&&typeof renderMonthlyPlan==="function") requestAnimationFrame(()=>{try{renderMonthlyPlan()}catch(e){}});
+}
+document.querySelectorAll(".side-link").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
+
+/* ================= MENU FLEXÍVEL ================= */
+const side=document.getElementById("side"), sideToggle=document.getElementById("sideToggle");
+const SIDE_MIN=76, SIDE_MAX=340, COLLAPSE_AT=150;
+let lastOpenWidth=240;
+function setSideWidth(w){
+  w=Math.max(SIDE_MIN,Math.min(SIDE_MAX,Math.round(w)));
+  const collapsed=w<COLLAPSE_AT;
+  if(collapsed) w=SIDE_MIN; else lastOpenWidth=w;
+  document.documentElement.style.setProperty("--side-w",w+"px");
+  side.classList.toggle("collapsed",collapsed);
+  document.body.classList.toggle("side-collapsed-state",collapsed);
+  try{localStorage.setItem("tgft_side",String(w))}catch(e){}
+}
+sideToggle.addEventListener("click",()=>setSideWidth(side.classList.contains("collapsed")?lastOpenWidth:SIDE_MIN));
+document.getElementById("sideResizer").addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  document.body.classList.add("resizing");
+  const move=ev=>{
+    const w=Math.max(SIDE_MIN,Math.min(SIDE_MAX,ev.clientX));
+    document.documentElement.style.setProperty("--side-w",w+"px");
+    side.classList.toggle("collapsed",w<COLLAPSE_AT);
+  };
+  const up=ev=>{
+    document.body.classList.remove("resizing");
+    window.removeEventListener("pointermove",move); window.removeEventListener("pointerup",up);
+    setSideWidth(ev.clientX);
+  };
+  window.addEventListener("pointermove",move); window.addEventListener("pointerup",up);
+});
+
+/* ================= MÊS ================= */
+function latestMeaningfulMonth(monthly){const w=monthly.filter(x=>x.income||x.expenses);return w.length?w[w.length-1]:monthly[0]}
+function currentMonthName(){return MONTH_ORDER[new Date().getMonth()]||"Jan"}
+function getInitialMonth(){const c=currentMonthName();return state.monthly.some(x=>x.month===c)?c:latestMeaningfulMonth(state.monthly).month}
+function currentMonthData(){return state.monthly.find(x=>x.month===selectedMonth)||latestMeaningfulMonth(state.monthly)}
+function renderMonthNav(active){
+  const s=document.getElementById("monthSelect");
+  Array.from(s.options).forEach(o=>{o.disabled=!state.monthly.some(x=>x.month===o.value)});
+  s.value=active;
+}
+
+/* ================= DÍVIDAS ================= */
+function parseMoney(v){
+  if(isNum(v)) return v;
+  if(typeof v!=="string") return NaN;
+  let s=v.replace(/[​-‏‪-‮⁦-⁩ ]/g,"").replace(/R\$/gi,"").replace(/\s/g,"");
+  if(!s||!/\d/.test(s)) return NaN;
+  const neg=/^-|^\(.*\)$/.test(s); s=s.replace(/[()\-+]/g,"");
+  const lc=s.lastIndexOf(","), ld=s.lastIndexOf(".");
+  if(lc>=0&&ld>=0){ // os dois separadores: o último é o decimal
+    if(lc>ld) s=s.replace(/\./g,"").replace(",","."); else s=s.replace(/,/g,"");
+  } else if(lc>=0){ // só vírgula: 1,234,567 = milhar; 1750,5 = decimal
+    s=/^\d{1,3}(,\d{3})+$/.test(s)?s.replace(/,/g,""):s.replace(",",".");
+  } else if(ld>=0){ // só ponto: 1.750 / 1.234.567 = milhar; 1750.5 = decimal
+    if(/^\d{1,3}(\.\d{3})+$/.test(s)) s=s.replace(/\./g,"");
+    else if(/^\d{1,3}(\.\d{3})+\.\d{1,2}$/.test(s)){const k=s.lastIndexOf(".");s=s.slice(0,k).replace(/\./g,"")+"."+s.slice(k+1);} // 1.600.00 = 1600,00
+  }
+  const n=Number(s); return Number.isFinite(n)?(neg?-n:n):NaN;
+}
+function debtKey(text){
+  const d=norm(text);
+  if(d.includes("CHEQUE")) return "CHEQUE";
+  if(d.includes("MARGARETI")) return "MARGARETI";
+  if(d.includes("LEILA")) return "LEILA";
+  if(d.includes("NUBANK")&&(d.includes("GABY")||d.includes("GABRIELLY")||d.includes("GABI"))) return "NUBANK_GABY";
+  if(d.includes("NUBANK")&&(/\bCC\b/.test(d)||d.includes("CARTAO")||d.includes("FATURA"))) return "NUBANK_CC";
+  if(d.includes("NUBANK")&&(d.includes("DRICO")||d.includes("ADRIANO"))) return "NUBANK_DRICO";
+  if(d.includes("NUBANK")) return "NUBANK_GABY";   // "EMPRESTIMO (NUBANK)" das não essenciais é o da Gaby
+  if(d.includes("ITAU")) return "ITAU";
+  if(d.includes("SANTANDER")) return "SANTANDER";
+  return null;
+}
+const BANKS=[["NUBANK","Nubank"],["ITAU","Itaú"],["SANTANDER","Santander"],["BRADESCO","Bradesco"],["CAIXA","Caixa"],["BANCO DO BRASIL","Banco do Brasil"],["INTER","Inter"],["C6","C6 Bank"],["PICPAY","PicPay"],["MERCADO PAGO","Mercado Pago"]];
+function titleCase(s){return String(s).toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase())}
+function inferDebtType(name){
+  const n=norm(name);
+  const bank=BANKS.find(([k])=>n.includes(k)); if(bank) return bank[1];
+  if(n.includes("CHEQUE")) return "Banco";
+  if(n.includes("FINANCIAMENTO")||n.includes("CEDRO")||n.includes("CARRO")) return "Financiamento";
+  const m=n.match(/^(SOGRA|SOGRO|MAE|PAI|IRMA|IRMAO|TIA|TIO|PRIMO|PRIMA|AMIGO|AMIGA)\s+(.+)$/);
+  if(m) return titleCase(String(name).trim().split(/\s+/).slice(1).join(" "));
+  return String(name).trim();
+}
+function normalizeDebt(d){
+  return {
+    name:String(d.name||"").trim(),
+    order:d.order==null?null:Number(d.order),
+    balance:Number(d.balance||0),
+    installments:d.installments==null?"":String(d.installments).trim(),
+    installmentValue:Number.isFinite(Number(d.installmentValue))&&d.installmentValue!==""&&d.installmentValue!=null?Number(d.installmentValue):null,
+    type:(d.type&&String(d.type).trim())||inferDebtType(d.name)
+  };
+}
+const DEFAULT_DEBTS = DEFAULT_DEBTS_RAW.map(normalizeDebt);
+state.debts = structuredClone(DEFAULT_DEBTS);
+
+function priorityVisual(i,d){
+  if(Number(d.balance||0)<=0) return {cls:"pv-paid",label:"Quitada"};
+  if(i===0) return {cls:"pv-urgent",label:"Urgente"};
+  if(i<=2) return {cls:"pv-high",label:"Alta"};
+  if(i<=4) return {cls:"pv-medium",label:"Média"};
+  return {cls:"pv-planned",label:"Planejada"};
+}
+const pad2=n=>String(n).padStart(2,"0");
+function debtStatus(i,d){return Number(d.balance||0)<=0?"Quitada":`Prioridade ${i+1}`}
+
+function debtPayoffs(){
+  const out={};
+  try{
+    const noData=!state.monthly.some(hasData)&&!(state.monthly2027||[]).some(hasData);
+    const plan=calculateMonthlyPlan();
+    (plan.debtsEnd||[]).forEach(d=>{
+      out[d.idx]=Number(d.balance||0)<=0?"Quitada":noData?"—":(d.payoff||`Após ${monthDisplay(PLAN_END.year,PLAN_END.monthIndex)}`);
+    });
+  }catch(e){}
+  return out;
+}
+function renderDebts(){
+  const list=state.debts;
+  if(selectedDebtPos>=list.length) selectedDebtPos=0;
+  const total=list.reduce((s,d)=>s+Number(d.balance||0),0);
+  const payoff=debtPayoffs();
+  const share=d=>total>0?Number(d.balance||0)/total:0;
+  const sel=document.getElementById("debtSelect");
+  sel.innerHTML=!list.length?`<option value="0">Nenhuma dívida carregada</option>`:list.map((d,i)=>`<option value="${i}">${escapeHtml(d.name)}</option>`).join("");
+  sel.value=String(selectedDebtPos);
+
+  document.getElementById("debtBody").innerHTML=!list.length?`<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">Nenhuma dívida carregada. Clique em <b>Atualizar com Excel</b>.</td></tr>`:list.map((d,i)=>{
+    const pv=priorityVisual(i,d);
+    return `<tr data-pos="${i}" class="${i===selectedDebtPos?"selected":""}">
+      <td><span class="rank-pill">${pad2(i+1)}</span></td>
+      <td><b>${escapeHtml(d.name)}</b></td>
+      <td><b>${escapeHtml(debtStatus(i,d))}</b></td>
+      <td class="num"><b>${brl(d.balance)}</b></td>
+      <td class="num">${pct(share(d))}</td>
+      <td class="num">${escapeHtml(payoff[i]||"—")}</td>
+      <td>${escapeHtml(d.type||"")}</td>
+      <td><span class="pv ${pv.cls}">${pv.label}</span></td>
+    </tr>`;
+  }).join("");
+  document.querySelectorAll("#debtBody tr[data-pos]").forEach(tr=>tr.addEventListener("click",()=>{selectedDebtPos=Number(tr.dataset.pos);renderDebts()}));
+
+  setText("debtTotal",brl(total));
+  setText("debtCount",String(list.filter(d=>Number(d.balance||0)>0).length));
+
+  const d=list[selectedDebtPos];
+  const panel=document.getElementById("debtFocusPanel");
+  if(!d){panel.innerHTML="";return;}
+  const pv=priorityVisual(selectedDebtPos,d);
+  const metric=(label,val,title="")=>`<div class="debt-metric"><div class="label">${label}</div><div class="value"${title?` title="${escapeHtml(title)}"`:""}>${val}</div></div>`;
+  panel.innerHTML=
+    metric("Dívida",escapeHtml(d.name),d.name)+
+    metric("Posição na fila",`${pad2(selectedDebtPos+1)} de ${pad2(list.length)}`)+
+    metric("Status",escapeHtml(debtStatus(selectedDebtPos,d)))+
+    metric("Saldo",brl(d.balance))+
+    metric("% do total",pct(share(d)))+
+    metric("Quitação prevista",escapeHtml(payoff[selectedDebtPos]||"—"))+
+    metric("Tipo",escapeHtml(d.type||""),d.type)+
+    metric("Prioridade visual",`<span class="pv ${pv.cls}">${pv.label}</span>`);
+  document.getElementById("prioLegend").innerHTML=`<b>Prioridade visual:</b>
+    <span class="pv pv-urgent">Urgente</span><span>1ª da fila, com juros</span>
+    <span class="pv pv-high">Alta</span><span>2ª e 3ª</span>
+    <span class="pv pv-medium">Média</span><span>4ª e 5ª</span>
+    <span class="pv pv-planned">Planejada</span><span>6ª em diante</span>
+    <span class="pv pv-paid">Quitada</span>`;
+}
+document.getElementById("debtSelect").addEventListener("change",e=>{selectedDebtPos=Number(e.target.value)||0;renderDebts()});
+
+/* ================= PLANO MENSAL ================= */
+function monthDisplay(y,mi){return `${MONTH_LABELS[MONTH_ORDER[mi]]}/${String(y).slice(-2)}`}
+function nextMonth(y,mi){return mi===11?{year:y+1,monthIndex:0}:{year:y,monthIndex:mi+1}}
+function makeStatus(label,type="info"){return `<span class="plan-status ${type}"><span class="plan-dot"></span>${escapeHtml(label)}</span>`}
+function hasData(x){return x&&(Number(x.income)||Number(x.expenses))}
+function sheetMonth(y,mi){
+  const name=MONTH_ORDER[mi];
+  if(y===2026) return state.monthly.find(x=>x.month===name&&hasData(x))||null;
+  if(y===2027) return (state.monthly2027||[]).find(x=>x.month===name&&hasData(x))||null;
+  return null;
+}
+function projectionBase(){
+  const withItems=[...state.monthly].reverse().find(x=>hasData(x)&&Array.isArray(x.expenseItems)&&x.expenseItems.length);
+  return withItems||latestMeaningfulMonth(state.monthly);
+}
+const shortName=n=>String(n).replace(/^Sogra\s+/i,"").trim();
+/* Parcelas com mês no nome ("Financiamento cedro - set", "... - out"):
+   a linha correspondente das despesas DESSE mês abate a dívida, para não pagar duas vezes. */
+const MONTH_TAGS=[["JAN","JANEIRO"],["FEV","FEVEREIRO"],["MAR","MARCO"],["ABR","ABRIL"],["MAI","MAIO"],["JUN","JUNHO"],["JUL","JULHO"],["AGO","AGOSTO"],["SET","SETEMBRO"],["OUT","OUTUBRO"],["NOV","NOVEMBRO"],["DEZ","DEZEMBRO"]];
+function debtMonthTag(name){
+  const words=norm(name).split(/[^A-Z0-9]+/).filter(Boolean);
+  for(let i=words.length-1;i>=0;i--){const k=MONTH_TAGS.findIndex(t=>t.includes(words[i]));if(k>=0) return k;}
+  return null;
+}
+function debtWords(name){
+  const tags=MONTH_TAGS.flat();
+  return norm(name).split(/[^A-Z0-9]+/).filter(w=>w.length>2&&!tags.includes(w)&&!/^\d+$/.test(w));
+}
+function trackedLabel(d){
+  if(debtKey(d.name)==="CHEQUE") return {full:"Cheque especial",short:"Cheque esp."};
+  const tag=debtMonthTag(d.name);
+  if(norm(d.name).includes("FINANCIAMENTO")){
+    const full=String(d.name).replace(/financiamento/i,"Financ.").replace(/\s*[-–]\s*/g," ").trim();
+    return {full, short:tag!=null?`Financ. ${MONTH_TAGS[tag][0].toLowerCase()}`:full};
+  }
+  const full=String(d.name).replace(/\s*[-–]\s*/g," ").trim();
+  return {full, short:shortName(full)};
+}
+const MONTH_WORD_RE=new RegExp("\\s*[-–]?\\s*\\b("+MONTH_TAGS.flat().join("|")+")\\b\\s*$","i");
+
+function calculateMonthlyPlan(){
+  const debts=state.debts.map((d,i)=>({...d,idx:i,key:debtKey(d.name),tag:debtMonthTag(d.name),words:debtWords(d.name),bal:Math.max(0,Number(d.balance||0))}));
+  const tracked=debts.slice();            // todas as dívidas do Mapa, na ordem
+  const autoDebts=[];                      // parcelas que ficaram para trás durante o plano
+  const base=projectionBase();
+  const baseItems=Array.isArray(base?.expenseItems)?base.expenseItems:[];
+  // a reserva entra depois da N-ésima dívida que não é parcela mensal
+  let reserveAnchor=null, cnt=0;
+  for(const d of debts){ if(d.tag==null&&++cnt===RESERVE_AFTER){reserveAnchor=d;break;} }
+  let firstMonth=true;
+  let reserve=0, carry=0;
+  const rows=[];
+  const seenFreed=new Set();
+  let y=PLAN_START.year, mi=PLAN_START.monthIndex;
+
+  const payEmbedded=(desc,value,embedded)=>value;   // despesas não abatem dívidas: dívida só é paga pelo "Disponível p/ objetivos"
+
+  /* Parcelas com mês no nome (ex.: Financiamento cedro - set / - out) formam uma FILA:
+     a linha das despesas do mês paga sempre a parcela MAIS ANTIGA primeiro.
+     Se a parcela do próprio mês não está no Mapa e o dinheiro foi para uma atrasada,
+     a parcela deste mês passa a ficar em atraso (entra na fila automaticamente). */
+  const payQueue=(items,embedded)=>{
+    /* Linhas com o mês explícito (ex.: "FINANCIAMENTO CEDRO - OUT") quitam essa parcela específica
+       e são processadas ANTES da linha normal do mês — assim, pagar "normal + atrasada" no mesmo mês
+       quita a atrasada sem empurrar a parcela do mês para o atraso. */
+    const list=(items||[]).map(i=>({i,want:debtMonthTag(i.description)}));
+    list.sort((a,b)=>(b.want!=null)-(a.want!=null));
+    list.forEach(({i,want})=>{
+      const desc=norm(i.description);
+      const group=debts.filter(d=>d.tag!=null&&d.words.length&&d.words.every(w=>desc.includes(w)));
+      if(!group.length) return;
+      let money=Number(i.value||0), usedOlder=0;
+      const hasOwn=group.some(d=>d.tag===mi);
+      const order=want==null?group:[...group.filter(d=>d.tag===want),...group.filter(d=>d.tag!==want)];
+      for(const d of order){
+        if(money<=0.005) break;
+        if(d.bal<=0.005) continue;
+        const p=Math.min(money,d.bal); d.bal-=p; money-=p;
+        if(d.tag!==mi) usedOlder+=p;
+        embedded.push({name:d.name,value:p,done:d.bal<=0.005,left:d.bal,tagged:true});
+      }
+      if(want==null&&!hasOwn&&usedOlder>0.005){
+        const tpl=group[group.length-1];
+        const name=`${String(tpl.name).replace(MONTH_WORD_RE,"").trim()} - ${MONTH_LABELS[MONTH_ORDER[mi]].toLowerCase()}`;
+        const auto={...tpl,name,tag:mi,bal:usedOlder,balance:0,idx:-1,auto:true,payoff:null};
+        debts.splice(debts.indexOf(tpl)+1,0,auto); autoDebts.push(auto);
+        embedded.push({name,value:0,newArrear:usedOlder,tagged:true,ref:auto});
+      }
+    });
+  };
+
+  while(y<PLAN_END.year||(y===PLAN_END.year&&mi<=PLAN_END.monthIndex)){
+    const src=sheetMonth(y,mi);
+    const embedded=[], freed=[];
+    let income,essential,nonBase,nonessential;
+
+    if(src){
+      income=Number(src.income||0); essential=Number(src.essential||0);
+      nonBase=Number(src.nonessential||0); nonessential=nonBase;
+      (src.expenseItems||[]).filter(i=>i.section==="nonessential").forEach(i=>payEmbedded(i.description,Number(i.value||0),embedded));
+    } else {
+      income=Number(base?.income||0);
+      if(baseItems.length){
+        essential=baseItems.filter(i=>i.section==="essential").reduce((s,i)=>s+Number(i.value||0),0);
+        nonBase=0; nonessential=0;
+        baseItems.filter(i=>i.section==="nonessential").forEach(i=>{
+          const v=Number(i.value||0); nonBase+=v;
+          let cur;
+          if(debtKey(i.description)==="SANTANDER"){
+            cur=SANTANDER_KNOWN_SCHEDULE[`${y}-${pad2(mi+1)}`]??0;
+            if(v-cur>0.005) freed.push(`Santander ${cur>0?"caiu p/ "+brl(cur):"terminou"}`);
+          } else {
+            const k=debtKey(i.description), dn=k?(debts.find(d=>d.key===k)?.name||cleanDesc(i.description)):cleanDesc(i.description);
+            cur=payEmbedded(i.description,v,embedded);
+            if(v-cur>0.005) freed.push(`parcela ${escapeHtml(shortName(dn))} ${cur>0?"reduziu":"saiu"} (+${brl(v-cur)})`);
+          }
+          nonessential+=cur;
+        });
+      } else { essential=Number(base?.essential||0); nonBase=Number(base?.nonessential||0); nonessential=nonBase; }
+    }
+
+    // juros do cheque especial: o 1º mês usa o saldo da planilha como está;
+    // a partir do 2º mês, o que sobrou em aberto recebe os juros do mês
+    let interest=0;
+    const od=debts.find(d=>d.key==="CHEQUE"&&d.bal>0);
+    if(od&&!firstMonth){interest=od.bal*OVERDRAFT_RATE; od.bal+=interest;}
+
+    const cash=income-essential-nonessential;
+    const living=Math.max(0,Math.min(LIVING_TARGET,cash));
+    const carryIn=carry;
+    let avail=Math.max(0,cash-living)+carry; carry=0;
+    const goal=avail;
+    const payments=[]; let blocked=null;
+
+    const targets=[];
+    debts.forEach(d=>{targets.push({debt:d}); if(d===reserveAnchor) targets.push({reserve:true});});
+    if(!reserveAnchor) targets.push({reserve:true});
+    for(const t of targets){
+      if(avail<=0.005) break;
+      if(t.reserve){
+        if(reserve<RESERVE_TARGET){const p=Math.min(avail,RESERVE_TARGET-reserve);reserve+=p;avail-=p;payments.push({name:"Reserva",value:p,done:reserve>=RESERVE_TARGET-0.005,reserve:true});}
+        continue;
+      }
+      const d=t.debt; if(d.bal<=0.005) continue;
+      if(d.bal>avail+0.005){blocked={debt:d,need:d.bal,have:avail};break;}   // não divide: espera o mês seguinte
+      avail-=d.bal; payments.push({name:d.name,value:d.bal,done:true}); d.bal=0;
+    }
+    if(blocked) carry=avail;
+    else if(avail>0.005){reserve+=avail;payments.push({name:"Reserva (tudo quitado)",value:avail,reserve:true});}
+    avail=0;
+
+    let action="", status;
+    /* Ação principal: só dívidas do Mapa pagas por inteiro (✓) e alertas. */
+    let inside="";
+    if(blocked){
+      const bl=escapeHtml(trackedLabel(blocked.debt).short), nx=nextMonth(y,mi);
+      inside+=`<div class="act-warn">⚠ ${bl} (${brl(blocked.need)}) não coube: vai para ${monthDisplay(nx.year,nx.monthIndex)}. Guardado: ${brl(blocked.have)}</div>`;
+    }
+    if(!src&&!hasData(base)){
+      action=`<div class="act-sub">Sem dados na planilha para este mês</div>`;
+      status={label:"Sem dados",type:"info"};
+    } else if(cash<=0){
+      action=`<div class="act-bad">Déficit de ${brl(-cash)}: cortar não essenciais ou aumentar a renda</div>`;
+      status={label:"Mês em déficit",type:"bad"};
+    } else if(living<LIVING_TARGET){
+      action=`<div class="act-warn">Tudo para viver: ${brl(living)} (faltam ${brl(LIVING_TARGET-living)} p/ meta)</div>`;
+      if(od) action+=`<div class="act-warn">⚠ Cheque especial sobe p/ ${brl(od.bal)} (juros ${brl(interest)})</div>`;
+      status={label:"Viver abaixo da meta",type:"warn"};
+    } else {
+      action=payments.map(p=>`<div class="act-line">${brl(p.value)} → ${escapeHtml(p.reserve?p.name:trackedLabel(p).short)}${p.done?` <span class="done">✓</span>`:""}</div>`).join("");
+      if(!action) action=`<div class="act-line">Manter ${brl(LIVING_TARGET)} para viver</div>`;
+      const lastDone=[...payments].reverse().find(p=>p.done&&!p.reserve);
+      const last=payments[payments.length-1];
+      if(blocked) status={label:`Juntando p/ ${trackedLabel(blocked.debt).short}`,type:"warn"};
+      else if(lastDone&&lastDone===last) status={label:`${trackedLabel(lastDone).short} quitada`,type:"ok"};
+      else if(last&&last.reserve) status={label:reserve>=RESERVE_TARGET?"Reserva completa":"Construindo reserva",type:"ok"};
+      else if(last) status={label:`Quitando ${trackedLabel(last).short}`,type:"info"};
+      else status={label:"Planejado",type:"info"};
+    }
+    action+=inside;
+
+    debts.forEach(d=>{if(d.payoff==null&&d.bal<=0.005&&Number(d.balance||0)>0) d.payoff=monthDisplay(y,mi);});
+    rows.push({year:y,monthIndex:mi,label:monthDisplay(y,mi),projected:!src,carryIn,income,essential,nonBase,nonessential,cash,living,goal,action,reserve,status,tracked:tracked.map(d=>d.bal),autoLeft:autoDebts.reduce((s,d)=>s+d.bal,0),debtLeft:debts.reduce((s,d)=>s+d.bal,0)});
+    firstMonth=false;
+    const n=nextMonth(y,mi); y=n.year; mi=n.monthIndex;
+  }
+  return {rows,base,debtsEnd:debts.filter(d=>!d.auto),tracked};
+}
+
+const PLAN_GROUPS={flow:"Entradas e saídas",split:"Divisão da sobra",debts:"Saldo após o mês",plan:"Plano do mês"};
+const PLAN_GROUP_KEY="tgft_plan_groups";
+let planGroupState={flow:true,split:true,debts:true,plan:true};
+let planGroupSaved=false;
+try{const g=JSON.parse(localStorage.getItem(PLAN_GROUP_KEY)||"null"); if(g){planGroupState={...planGroupState,...g};planGroupSaved=true;}}catch(e){}
+function autoPlanGroups(cols){
+  if(planGroupSaved) return;
+  const w=document.querySelector(".monthly-table")?.clientWidth||0;
+  if(!w) return; // aba escondida: decide quando ela abrir
+  const need=cols.filter(c=>c.group==="month"||planGroupState[c.group]!==false||c.group==="flow").reduce((s,c)=>s+c.min,0);
+  planGroupState.flow=need<=w;
+}
+const planGroupOn=id=>id==="month"||planGroupState[id]!==false;
+function renderPlanToggles(){
+  const el=document.getElementById("planToggles"); if(!el) return;
+  el.innerHTML=Object.entries(PLAN_GROUPS).map(([id,l])=>`<button type="button" class="plan-chip ${planGroupOn(id)?"on":""}" data-group="${id}" aria-pressed="${planGroupOn(id)}">${l}</button>`).join("");
+  el.querySelectorAll(".plan-chip").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.group; const on=!planGroupOn(id);
+    if(!on&&Object.keys(PLAN_GROUPS).filter(planGroupOn).length<=1) return; // mantém pelo menos um grupo
+    planGroupState[id]=on; planGroupSaved=true;
+    try{localStorage.setItem(PLAN_GROUP_KEY,JSON.stringify(planGroupState))}catch(e){}
+    renderMonthlyPlan();
+  });
+}
+function balCell(v,start){
+  if(start<=0.005&&v<=0.005) return `<span class="bal-none">—</span>`;
+  if(v<=0.005) return `<span class="bal-zero">✓ quitada</span><span class="bal-bar done"><span style="width:100%"></span></span><span class="bal-pct ok">100% pago</span>`;
+  const paid=start>0?Math.max(0,Math.min(1,1-v/start)):0;
+  const label=v>start+0.005?`↑ juros`:paid<0.005?"aguardando":`${Math.floor(paid*100)}% pago`;
+  return `<span class="bal-open">${brl(v)}</span><span class="bal-bar"><span style="width:${(paid*100).toFixed(1)}%"></span></span><span class="bal-pct">${label}</span>`;
+}
+function planColumns(plan){
+  const money=(f,o={})=>({cls:"money",...o,cell:r=>brl(f(r))});
+  const cols=[
+    {group:"month",full:"Mês",w:5.5,min:58,cell:r=>`<b>${r.label}</b>${r.projected?`<div class="proj">projeção</div>`:""}`},
+    money(r=>r.income,{group:"flow",full:"Renda",w:7.5,min:84}),
+    money(r=>r.essential,{group:"flow",full:"Essenciais",short:"Essenc.",w:7.5,min:84}),
+    {group:"flow",cls:"money",full:"Não essenciais",short:"Não ess.",w:7.5,min:84,cell:r=>brl(r.nonessential)+(r.nonessential<r.nonBase-0.005?`<div class="sub-green">↓ ${brl(r.nonBase-r.nonessential)}</div>`:"")},
+    money(r=>r.cash,{group:"flow",full:"Sobra após despesas",short:"Sobra",w:7.5,min:84,style:r=>`font-weight:850;color:${r.cash>=0?"var(--blue)":"var(--red)"}`}),
+    money(r=>r.living,{group:"split",full:"Para viver",w:7,min:82,style:r=>`font-weight:850;color:${r.living>=LIVING_TARGET?"var(--green)":"var(--orange)"}`}),
+    {group:"split",cls:"money",full:"Disponível p/ objetivos",short:"Disp. objetivos",w:7.5,min:88,style:r=>`font-weight:850;color:${r.goal>0?"var(--green)":"var(--muted)"}`,cell:r=>brl(r.goal)+(r.carryIn>0.005?`<div class="sub-green">inclui ${brl(r.carryIn)} do mês anterior</div>`:"")},
+  ];
+  (plan.tracked||[]).forEach((d,k)=>{
+    const l=trackedLabel(d);
+    cols.push({group:"debts",cls:"money bal",full:l.full,short:l.short,w:7,min:84,cell:r=>balCell(r.tracked[k],Number(d.balance||0))});
+  });
+  if(plan.rows.some(r=>r.autoLeft>0.005))
+    cols.push({group:"debts",cls:"money bal",full:"Parcelas novas em atraso",short:"Novas atrasadas",w:7,min:84,cell:r=>r.autoLeft>0.005?`<span class="bal-open">${brl(r.autoLeft)}</span><span class="bal-pct">em atraso</span>`:`<span class="bal-none">—</span>`});
+  cols.push(
+    money(r=>r.reserve,{group:"debts",full:"Reserva",w:7,min:82}),
+    {group:"plan",cls:"plan-action",full:"Ação principal",short:"Ação",w:23,min:210,cell:r=>r.action},
+    {group:"plan",full:"Status",w:9.5,min:112,cell:r=>makeStatus(r.status.label,r.status.type)}
+  );
+  return cols;
+}
+let planResizeT=null;
+window.addEventListener("resize",()=>{clearTimeout(planResizeT);planResizeT=setTimeout(()=>{if(!planGroupSaved&&document.getElementById("viewPlan")?.classList.contains("active")) renderMonthlyPlan();},200);});
+function renderMonthlyPlan(){
+  const plan=calculateMonthlyPlan();
+  const m=currentMonthData();
+  setText("planPeriodBadge",`${plan.rows[0]?.label||"—"} → ${plan.rows[plan.rows.length-1]?.label||"—"}`);
+  setText("planSelectedBadge",`Meta para viver: ${brl(LIVING_TARGET)}`);
+
+  const noData=!state.monthly.some(hasData)&&!(state.monthly2027||[]).some(hasData);
+  const cols=planColumns(plan);
+  autoPlanGroups(cols);
+  const vis=cols.filter(c=>planGroupOn(c.group));
+  // cabeçalho em dois níveis + larguras proporcionais
+  const totalW=vis.reduce((s,c)=>s+c.w,0);
+  document.getElementById("monthlyPlanCols").innerHTML=vis.map(c=>`<col style="width:${(c.w/totalW*100).toFixed(2)}%">`).join("");
+  document.getElementById("monthlyPlanTable").style.minWidth=vis.reduce((s,c)=>s+c.min,0)+"px";
+  const groups=[]; vis.forEach(c=>{const g=groups[groups.length-1]; if(g&&g.id===c.group) g.n++; else groups.push({id:c.group,n:1});});
+  document.getElementById("monthlyPlanHead").innerHTML=
+    `<tr class="grp-row">${groups.map(g=>`<th colspan="${g.n}" class="grp grp-${g.id}">${PLAN_GROUPS[g.id]||""}</th>`).join("")}</tr>`+
+    `<tr class="col-row">${vis.map(c=>`<th class="${c.cls||""} g-${c.group}" title="${escapeHtml(c.full)}"><span class="lbl-full">${escapeHtml(c.full)}</span><span class="lbl-short">${escapeHtml(c.short||c.full)}</span></th>`).join("")}</tr>`;
+  const body=document.getElementById("monthlyPlanBody");
+  if(noData){
+    body.innerHTML=`<tr><td colspan="${vis.length}" style="text-align:center;color:var(--muted);padding:40px 12px;white-space:normal">Nenhuma planilha carregada. Clique em <b>Atualizar com Excel</b> para montar o plano de NOV/26 a JUL/27.</td></tr>`;
+  } else {
+    body.innerHTML=plan.rows.map(r=>{
+      const isCurrent=r.year===2026&&MONTH_ORDER[r.monthIndex]===m.month;
+      return `<tr class="${isCurrent?"current":""}">${vis.map(c=>`<td class="${c.cls||""} g-${c.group}"${c.style?` style="${c.style(r)}"`:""}>${c.cell(r)}</td>`).join("")}</tr>`;
+    }).join("");
+  }
+  requestAnimationFrame(()=>{const g=document.querySelector("#monthlyPlanHead .grp-row");if(g) document.getElementById("monthlyPlanTable").style.setProperty("--grp-h",g.getBoundingClientRect().height+"px");});
+  renderPlanToggles();
+
+  const baseName=plan.base?.month||"Dezembro";
+  const realMonths=plan.rows.filter(r=>!r.projected).map(r=>r.label).join(", ")||"nenhum";
+  const order=state.debts.map((d,i)=>`${pad2(i+1)} ${escapeHtml(d.name)}`);
+  order.splice(Math.min(RESERVE_AFTER,order.length),0,`Reserva mínima (${brl(RESERVE_TARGET)})`);
+  document.getElementById("planAssumptionNote").innerHTML=
+    `<b>Meses com aba na planilha</b> (${realMonths}) usam a renda, as essenciais e as não essenciais exatamente como estão lá. `+
+    `<b>Meses sem aba</b> repetem a estrutura de ${escapeHtml(baseName)}/26 (o Santander segue o cronograma: ${brl(130.86)} de JAN a JUN/27 e zera em JUL/27). `+
+    `<b>Sobra após despesas</b> = Renda − Essenciais − Não essenciais. As despesas são só despesas: não abatem nenhuma dívida do Mapa. <b>Para viver</b> é separado primeiro, até ${brl(LIVING_TARGET)}; o que passa disso vira <b>Disponível p/ objetivos</b> e paga as dívidas do Mapa nesta ordem: ${order.join(" → ")}. `+
+    `Cada dívida é paga <b>pelo valor cheio</b>, nunca dividida: se o disponível não cobre a próxima da fila, ela espera e o valor fica guardado para o mês seguinte (soma ao disponível de lá). `+
+    `<b>Saldo após o mês</b> mostra quanto falta de cada dívida no fim do mês e o % já pago. O cheque especial do 1º mês usa o saldo da planilha como está; a partir do 2º mês o que sobrou em aberto recebe juros. `+
+    `O cheque especial recebe ${pct(OVERDRAFT_RATE)} de juros ao mês enquanto tiver saldo. Os saldos e a ordem das dívidas vêm da aba “Mapa de Dívidas” da planilha (coluna A = ordem, B = dívida, C = saldo).`;
+}
+
+/* ================= DESPESAS ================= */
+function studentsForMonth(name){
+  if(state.studentsByMonth&&Object.keys(state.studentsByMonth).length) return state.studentsByMonth[name]||[];
+  return Array.isArray(state.students)?state.students:[];
+}
+function renderExpenses(m){
+  setText("expMonthBadge",m.month); setText("studentsMonthBadge",m.month);
+  const total=Number(m.essential||0)+Number(m.nonessential||0);
+  setText("eEssential",brl(m.essential));
+  setText("eNonessential",brl(m.nonessential));
+  setText("eTotal",brl(m.expenses));
+  setText("eShare",pct(total?m.nonessential/total:0));
+
+  // agrupa por aluno (se o mesmo aluno aparecer mais de uma vez no mês, soma)
+  const map=new Map();
+  studentsForMonth(m.month).forEach(([n,v])=>{const k=cleanDesc(n).toUpperCase();map.set(k,(map.get(k)||0)+Number(v||0))});
+  const sorted=[...map.entries()].sort((a,b)=>b[1]-a[1]);
+  const sum=sorted.reduce((s,x)=>s+x[1],0);
+  const top5=sorted.slice(0,5).reduce((s,x)=>s+x[1],0);
+  setText("sTotal",brl(m.classes||sum));
+  setText("sCount",String(sorted.length));
+  setText("sAvg",brl(sorted.length?sum/sorted.length:0));
+  setText("sTop5",pct(sum?top5/sum:0));
+  const max=sorted[0]?.[1]||1;
+  document.getElementById("studentsBody").innerHTML=sorted.length
+    ? sorted.map(([n,v],i)=>{const share=sum?v/sum:0;return `<tr><td><b>${i+1}</b></td><td>${escapeHtml(n)}</td><td class="num">${brl(v)}</td><td class="num">${pct(share)}</td><td><div class="bar-share"><span style="width:${(v/max*100).toFixed(1)}%"></span></div></td></tr>`}).join("")
+    : `<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:18px">Nenhum aluno identificado neste mês.</td></tr>`;
+}
+
+/* ================= RENDER GERAL ================= */
+function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}});charts={}}
+function colorMetric(id,good){
+  const el=document.getElementById(id); el.classList.remove("good","bad","blue");
+  if(id==="kEssentialValue") el.classList.add(good?"blue":"bad"); else el.classList.add(good?"good":"bad");
+}
+function chartOptionsMoney(){
+  return {responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+    plugins:{legend:{position:"bottom",labels:{color:"#aab4c5",usePointStyle:true,boxWidth:8}},tooltip:{callbacks:{label:c=>c.dataset.label+": "+brl(c.raw)}}},
+    scales:{x:{grid:{display:false},ticks:{color:"#8f9bb0"}},y:{suggestedMin:0,suggestedMax:1000,grid:{color:"rgba(143,155,176,.18)",borderDash:[3,4]},border:{display:false},ticks:{color:"#8f9bb0",callback:v=>Math.abs(v)>=1000?"R$ "+Math.round(v/1000)+"k":"R$ "+v}}}};
+}
+
+function render(){
+  destroyCharts();
+  if(!selectedMonth) selectedMonth=getInitialMonth();
+  const m=currentMonthData();
+  renderMonthNav(m.month);
+  setText("compositionMonth",m.month);
+
+  const commit=m.income?m.expenses/m.income:0;
+  setText("kIncome",brl(m.income)); setText("kIncomeHint","Mês: "+m.month);
+  setText("kExpenses",brl(m.expenses));
+  setText("kEssentialValue",brl(m.essential)); colorMetric("kEssentialValue",m.essential<=6958.80);
+  setText("kBalance",brl(m.balance)); setText("kBalanceHint",!hasData(m)?"sem dados neste mês":m.balance>=0?"superávit do mês":"déficit do mês"); colorMetric("kBalance",m.balance>=0);
+  setText("kCommit",pct(commit)); colorMetric("kCommit",commit<=0.85);
+  setText("kClasses",brl(m.classes)); setText("kClassesHint",pct(m.income?m.classes/m.income:0)+" da renda");
+  setText("cfIncome",brl(state.monthly.reduce((s,x)=>s+Number(x.income||0),0))); setText("cfExpenses",brl(state.monthly.reduce((s,x)=>s+Number(x.expenses||0),0)));
+  setText("kUber",brl(m.uber)); setText("kUberHint",pct(m.income?m.uber/m.income:0)+" da renda");
+
+  const labels=state.monthly.map(x=>x.month);
+  const selIdx=labels.indexOf(m.month);
+  const areaFill=(rgb)=>ctx=>{const {chart}=ctx;const a=chart.chartArea;if(!a) return `rgba(${rgb},.15)`;const g=chart.ctx.createLinearGradient(0,a.top,0,a.bottom);g.addColorStop(0,`rgba(${rgb},.35)`);g.addColorStop(1,`rgba(${rgb},0)`);return g;};
+  const pts=(color)=>({pointBackgroundColor:"#1d2533",pointBorderColor:color,pointBorderWidth:2,pointRadius:labels.map((_,i)=>i===selIdx?6:3),pointHoverRadius:7});
+  charts.cash=new Chart(document.getElementById("cashChart"),{
+    type:"line",
+    data:{labels,datasets:[
+      {label:"Renda",data:state.monthly.map(x=>x.income),borderColor:"#22c55e",backgroundColor:areaFill("34,197,94"),fill:true,borderWidth:2.5,tension:.35,...pts("#22c55e")},
+      {label:"Despesas",data:state.monthly.map(x=>x.expenses),borderColor:"#ffab00",backgroundColor:areaFill("255,171,0"),fill:true,borderWidth:2.5,tension:.35,...pts("#ffab00")}
+    ]},
+    options:chartOptionsMoney()
+  });
+  const donutLabels={id:"donutLabels",afterDatasetsDraw(chart){
+    const meta=chart.getDatasetMeta(0), data=chart.data.datasets[0].data, tot=data.reduce((s,v)=>s+Number(v||0),0);
+    if(!tot) return; const c=chart.ctx; c.save(); c.fillStyle="#fff"; c.font="700 12px 'Public Sans',sans-serif"; c.textAlign="center"; c.textBaseline="middle";
+    meta.data.forEach((arc,i)=>{const p=Number(data[i]||0)/tot; if(p<0.04) return; const pos=arc.tooltipPosition(); c.fillText((p*100).toLocaleString("pt-BR",{maximumFractionDigits:1})+"%",pos.x,pos.y);});
+    c.restore();
+  }};
+  charts.income=new Chart(document.getElementById("incomeChart"),{
+    type:"doughnut",
+    data:{labels:["Aulas","Uber","Outros"],datasets:[{data:[m.classes,m.uber,m.other],backgroundColor:["#00a76f","#00b8d9","#ffab00"],borderColor:"#1d2533",borderWidth:4,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"62%",plugins:{legend:{position:"bottom",labels:{color:"#aab4c5",usePointStyle:true,boxWidth:8}},tooltip:{callbacks:{label:c=>c.label+": "+brl(c.raw)}}}},
+    plugins:[donutLabels]
+  });
+  charts.expense=new Chart(document.getElementById("expenseChart"),{
+    type:"bar",
+    data:{labels,datasets:[
+      {label:"Essenciais",data:state.monthly.map(x=>x.essential),backgroundColor:labels.map((_,i)=>i===selIdx?"#00a76f":"rgba(0,167,111,.35)"),stack:"x",borderRadius:4},
+      {label:"Não essenciais",data:state.monthly.map(x=>x.nonessential),backgroundColor:labels.map((_,i)=>i===selIdx?"#ffab00":"rgba(255,171,0,.35)"),stack:"x",borderRadius:4}
+    ]},
+    options:{...chartOptionsMoney(),scales:{x:{stacked:true,grid:{display:false},ticks:{color:"#8f9bb0"}},y:{stacked:true,suggestedMin:0,suggestedMax:1000,grid:{color:"rgba(143,155,176,.18)",borderDash:[3,4]},border:{display:false},ticks:{color:"#8f9bb0",callback:v=>Math.abs(v)>=1000?"R$ "+Math.round(v/1000)+"k":"R$ "+v}}}}
+  });
+
+  renderExpenses(m);
+  renderDebts();
+  renderMonthlyPlan();
+}
+
+/* ================= LEITURA DO EXCEL ================= */
+const MONTH_ALIASES={Jan:["JAN","JANEIRO"],Fev:["FEV","FEVEREIRO"],Mar:["MAR","MARCO"],Abril:["ABR","ABRIL"],Maio:["MAI","MAIO"],Junho:["JUN","JUNHO"],Julho:["JUL","JULHO"],Agosto:["AGO","AGOSTO"],Setembro:["SET","SETEMBRO"],Outubro:["OUT","OUTUBRO"],Novembro:["NOV","NOVEMBRO"],Dezembro:["DEZ","DEZEMBRO"]};
+function parseWorkbook(wb){
+  const monthly=[], studentsByMonth={}, monthly2027=[];
+  MONTH_ORDER.forEach(name=>{
+    if(!wb.Sheets[name]) return;
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,raw:true,defval:null});
+    const parsed=parseMonthSheet(name,rows,wb.Sheets[name]);
+    monthly.push(parsed.summary); studentsByMonth[name]=parsed.students;
+  });
+  // abas de 2027 (ex.: "Jan 2027", "JANEIRO/27") — usadas no Plano Mensal quando existirem
+  (wb.SheetNames||[]).forEach(sn=>{
+    const mm=norm(sn).match(/^([A-Z]+)\W*(?:20)?27$/); if(!mm) return;
+    const name=Object.keys(MONTH_ALIASES).find(k=>MONTH_ALIASES[k].includes(mm[1])); if(!name) return;
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:true,defval:null});
+    monthly2027.push(parseMonthSheet(name,rows,wb.Sheets[sn]).summary);
+  });
+  MONTH_ORDER.forEach(name=>{if(!monthly.some(x=>x.month===name)) monthly.push({month:name,income:0,expenses:0,essential:0,nonessential:0,classes:0,uber:0,other:0,balance:0,expenseItems:[]})});
+  monthly.sort((a,b)=>MONTH_ORDER.indexOf(a.month)-MONTH_ORDER.indexOf(b.month));
+  const cur=selectedMonth&&studentsByMonth[selectedMonth]?.length?selectedMonth:latestSheetName(wb);
+  const currentStudents=studentsByMonth[cur]||[];
+  const found=findDebtMap(wb);
+  return {
+    monthly,students:currentStudents,studentsByMonth,monthly2027,
+    debts:found?found.debts:structuredClone(DEFAULT_DEBTS),
+    debtSource:found?`Saldos lidos de “${found.sheet}” na planilha.`:"“Mapa de Dívidas” não encontrado na planilha."
+  };
+}
+function latestSheetName(wb){let l="Jan";MONTH_ORDER.forEach(m=>{if(wb.Sheets[m]) l=m});return l}
+
+/* Procura a seção "Mapa de Dívidas" em qualquer aba e lê: nome da dívida + saldo
+   (e, se existirem colunas com esses títulos, Parcelas / Valor / Tipo). */
+const DEBT_HEADER_WORDS=/^(#|N|NO|Nº|ORDEM|DIVIDA|DIVIDAS|NOME|CREDOR|SALDO|SALDO \/ COMPROMISSO|VALOR|VALOR TOTAL|PARCELAS|TIPO|STATUS|PRIORIDADE|PRIORIDADE VISUAL|MAPA DE DIVIDAS|TOTAL.*)$/;
+function findDebtMap(wb){
+  const names=wb.SheetNames||[];
+  const isMapName=n=>norm(n).includes("MAPA DE DIVIDA");
+  const ordered=[...names.filter(isMapName),...names.filter(n=>!isMapName(n))];
+  for(const sn of ordered){
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:true,defval:null});
+    let ar=-1, ac=0;
+    outer: for(let r=0;r<rows.length;r++) for(let c=0;c<(rows[r]||[]).length;c++){
+      if(typeof rows[r][c]==="string"&&norm(rows[r][c]).includes("MAPA DE DIVIDA")){ar=r;ac=c;break outer;}
+    }
+    if(ar<0&&!isMapName(sn)) continue;
+    const debts=readDebtRows(rows,ar+1,Math.max(0,ac-1),ar<0?999:ac+10);
+    if(debts.length) return {sheet:sn,debts};
+  }
+  return null;
+}
+function readDebtRows(rows,startRow,c0,c1){
+  const debts=[]; let cols=null, empty=0;
+  for(let r=startRow;r<Math.min(rows.length,startRow+80);r++){
+    const row=(rows[r]||[]).slice(0,c1+1).map(v=>typeof v==="string"?v.replace(/[\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g,"").trim():v);
+    const cells=row.map((v,c)=>({v,c})).filter(x=>x.c>=c0&&x.v!==null&&String(x.v).trim()!=="");
+    if(!cells.length){empty++; if(debts.length&&empty>=3) break; continue;}
+    empty=0;
+    // linha de cabeçalho?
+    const heads=cells.filter(x=>typeof x.v==="string"&&DEBT_HEADER_WORDS.test(norm(x.v)));
+    if(heads.length>=2&&heads.length===cells.filter(x=>typeof x.v==="string").length){
+      cols={};
+      heads.forEach(x=>{const h=norm(x.v);
+        if(/^(#|N|NO|Nº|ORDEM|PRIORIDADE)$/.test(h)) cols.order=x.c;
+        else if(/DIVIDA|NOME|CREDOR/.test(h)&&cols.name==null) cols.name=x.c;
+        else if(/SALDO|COMPROMISSO|VALOR TOTAL/.test(h)) cols.balance=x.c;
+        else if(/PARCELA/.test(h)) cols.inst=x.c;
+        else if(h==="VALOR") cols.value=x.c;
+        else if(h==="TIPO") cols.type=x.c;
+      });
+      if(cols.balance==null&&cols.value!=null&&cols.inst==null){cols.balance=cols.value;delete cols.value;}
+      continue;
+    }
+    let name=null, nameCol=-1, balance=NaN, order=null;
+    // tudo em uma célula: "01 - Cheque especial - 1.712,06"
+    const one=cells.find(x=>typeof x.v==="string"&&/[A-Za-zÀ-ú].*[-–:]\s*(R\$\s*)?[\d.,]+\s*$/.test(x.v));
+    if(cols&&cols.name!=null&&row[cols.name]!=null){name=String(row[cols.name]);nameCol=cols.name;}
+    else {
+      const t=cells.find(x=>typeof x.v==="string"&&/[A-Za-zÀ-ú]/.test(x.v)&&!/^\s*\d+\s*$/.test(x.v));
+      if(t){name=String(t.v);nameCol=t.c;}
+    }
+    if(!name) continue;
+    const ordCell=(cols&&cols.order!=null)?{v:row[cols.order]}:cells.find(x=>x.c<nameCol&&Number.isFinite(Number(x.v))&&String(x.v).trim()!=="");
+    if(ordCell&&Number.isFinite(Number(ordCell.v))) order=Number(ordCell.v);
+    if(cols&&cols.balance!=null) balance=parseMoney(row[cols.balance]);
+    if(!Number.isFinite(balance)){
+      const nxt=cells.find(x=>x.c>nameCol&&Number.isFinite(parseMoney(x.v))&&!(cols&&(x.c===cols.inst||x.c===cols.order)));
+      if(nxt) balance=parseMoney(nxt.v);
+    }
+    if(!Number.isFinite(balance)&&one){
+      const mm=String(one.v).match(/^(.*?)[-–:]\s*(?:R\$\s*)?([\d.,‪-‮]+)\s*$/);
+      if(mm){name=mm[1];balance=parseMoney(mm[2]);}
+    }
+    name=name.replace(/[‪-‮]/g,"").replace(/^\s*\d{1,3}\s*[-–.)]\s*/,"").replace(/\s*[-–]\s*$/,"").trim();
+    if(!name||DEBT_HEADER_WORDS.test(norm(name))||norm(name).startsWith("TOTAL")) continue;
+    if(!Number.isFinite(balance)){ if(debts.length) break; else continue; }
+    debts.push(normalizeDebt({
+      name, balance, order,
+      installments:cols&&cols.inst!=null?(row[cols.inst]??""):"",
+      installmentValue:cols&&cols.value!=null&&Number.isFinite(parseMoney(row[cols.value]))?parseMoney(row[cols.value]):null,
+      type:cols&&cols.type!=null?row[cols.type]:""
+    }));
+  }
+  // a coluna de ordem (#) da planilha define a fila de pagamento
+  if(debts.length&&debts.every(d=>d.order!=null)) debts.sort((x,y)=>x.order-y.order);
+  return debts;
+}
+
+function parseMonthSheet(name,rows,sheet){
+  let headerRow=-1,entryDesc=-1,entryVal=-1,expenseDesc=-1,expenseVal=-1;
+  for(let r=0;r<Math.min(rows.length,20);r++){
+    const rr=(rows[r]||[]).map(norm), idx=[];
+    rr.forEach((v,i)=>{if(v==="DESCRICAO") idx.push(i)});
+    if(idx.length>=2){headerRow=r;entryDesc=idx[0];expenseDesc=idx[1];entryVal=entryDesc+1;expenseVal=expenseDesc+1;break;}
+  }
+  if(headerRow<0) return {summary:{month:name,income:0,expenses:0,essential:0,nonessential:0,classes:0,uber:0,other:0,balance:0,expenseItems:[]},students:[]};
+
+  const cellObj=(r,c)=>{if(!sheet||!window.XLSX) return null;return sheet[XLSX.utils.encode_cell({r,c})]||null};
+  let classes=0,uber=0,other=0,computedIncome=0,essential=0,nonessential=0;
+  let explicitIncome=null,explicitIncomeIsFormula=false,explicitBalance=null,explicitBalanceIsFormula=false;
+  let explicitEssential=null,explicitEssentialIsFormula=false,explicitNonessential=null,explicitNonessentialIsFormula=false;
+  let explicitExpenses=null,explicitExpensesIsFormula=false;
+  let section="essential";
+  const students=[],expenseItems=[];
+
+  for(let r=headerRow+1;r<rows.length;r++){
+    const row=rows[r]||[];
+    const ed=norm(row[entryDesc]), ev=Number(row[entryVal]), xd=norm(row[expenseDesc]), xv=Number(row[expenseVal]);
+    if(ed==="TOTAL DE ENTRADAS"&&Number.isFinite(ev)){explicitIncome=ev;explicitIncomeIsFormula=!!cellObj(r,entryVal)?.f;}
+    if(ed.includes("TODO MES VAI TE SOBRAR ESTE VALOR")||ed.includes("SUA PLANILHA ESTIVER CORRETA")){
+      for(let c=0;c<row.length;c++){
+        const n=Number(row[c]);
+        if(Number.isFinite(n)&&row[c]!==null&&row[c]!==""){const o=cellObj(r,c);if(o&&(o.f||c>entryVal)){explicitBalance=n;explicitBalanceIsFormula=!!o?.f;}}
+      }
+    }
+    const left=norm(row[Math.max(0,expenseDesc-2)]);
+    if(left.includes("TOTAL DE DESPESAS ESSENCIAIS")&&Number.isFinite(xv)){explicitEssential=xv;explicitEssentialIsFormula=!!cellObj(r,expenseVal)?.f;}
+    if(left.includes("TOTAL DE DESPESAS NAO ESSENCIAIS")&&Number.isFinite(xv)){explicitNonessential=xv;explicitNonessentialIsFormula=!!cellObj(r,expenseVal)?.f;}
+    if(left.includes("TOTAL GERAL DE DESPESAS")&&Number.isFinite(xv)){explicitExpenses=xv;explicitExpensesIsFormula=!!cellObj(r,expenseVal)?.f;}
+    if(left.includes("NAO ESSENCIAIS")) section="nonessential";
+    else if(left.includes("ESSENCIAIS")&&!left.includes("NAO")&&!left.includes("TOTAL")) section="essential";
+
+    if(Number.isFinite(ev)&&ed&&!ed.startsWith("TOTAL")&&!ed.includes("RESERVA")&&!ed.includes("PLANILHA")&&!ed.includes("NESTE CENARIO")){
+      computedIncome+=ev;
+      if(ed.includes("UBER")) uber+=ev;
+      else if(ed.includes("PARTICULAR")||ed.includes("PRIVATE CLASS")){classes+=ev;students.push([String(row[entryDesc]||""),ev]);}
+      else other+=ev;
+    }
+    if(xd&&Number.isFinite(xv)&&!xd.includes("TOTAL")){
+      expenseItems.push({section,description:String(row[expenseDesc]||""),value:xv});
+      if(section==="nonessential") nonessential+=xv; else essential+=xv;
+    }
+  }
+  const income=(explicitIncome!==null&&!explicitIncomeIsFormula)?explicitIncome:computedIncome;
+  if(explicitEssential!==null&&!explicitEssentialIsFormula) essential=explicitEssential;
+  if(explicitNonessential!==null&&!explicitNonessentialIsFormula) nonessential=explicitNonessential;
+  const expenses=(explicitExpenses!==null&&!explicitExpensesIsFormula)?explicitExpenses:essential+nonessential;
+  const balance=(explicitBalance!==null&&!explicitBalanceIsFormula)?explicitBalance:income-expenses;
+  return {summary:{month:name,income,expenses,essential,nonessential,classes,uber,other,balance,expenseItems},students};
+}
+
+/* ================= EVENTOS ================= */
+const fileInput=document.getElementById("fileInput");
+fileInput.addEventListener("click",()=>{fileInput.value=""});
+function loadedAtLabel(){return new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date())}
+let fileHandle=null, fileLastMod=0, watchTimer=null, watchBusy=false;
+async function loadWorkbookFile(f,{auto=false}={}){
+  if(typeof XLSX==="undefined") throw new Error("Biblioteca XLSX não carregou. Abra o HTML com internet para usar o upload.");
+  if(!auto) setText("fileStatus","Lendo "+f.name+"...");
+  const wb=XLSX.read(await f.arrayBuffer(),{type:"array",cellDates:true});
+  const keepMonth=auto?selectedMonth:null, keepDebt=auto?(state.debts[selectedDebtPos]?.name||null):null;
+  state={...parseWorkbook(wb),file:f.name};
+  selectedMonth=keepMonth&&state.monthly.some(x=>x.month===keepMonth)?keepMonth:getInitialMonth();
+  const di=keepDebt?state.debts.findIndex(d=>d.name===keepDebt):-1;
+  selectedDebtPos=di>=0?di:0;
+  state.loadedAt=loadedAtLabel();
+  render();
+  const saved=saveLastWorkbook();
+  const watching=fileHandle?" • acompanhando o arquivo: salve no Excel e o site atualiza sozinho":"";
+  setText("fileStatus",`✓ ${f.name} ${auto?"atualizado automaticamente":"atualizado"} em ${state.loadedAt} • ${state.debtSource}${watching}${saved?"":" • (não foi possível guardar para restaurar depois)"}`);
+}
+function startWatching(){
+  clearInterval(watchTimer);
+  watchTimer=setInterval(async()=>{
+    if(!fileHandle||watchBusy) return;
+    watchBusy=true;
+    try{
+      const f=await fileHandle.getFile();
+      if(f.lastModified!==fileLastMod){fileLastMod=f.lastModified; await loadWorkbookFile(f,{auto:true});}
+    }catch(e){/* Excel ainda salvando ou arquivo bloqueado: tenta de novo no próximo ciclo */}
+    watchBusy=false;
+  },2500);
+}
+const canPickFile=typeof window.showOpenFilePicker==="function"&&window.isSecureContext;
+document.querySelector('label[for="fileInput"]').addEventListener("click",async e=>{
+  if(!canPickFile) return; // navegador sem suporte: usa o seletor comum
+  e.preventDefault();
+  try{
+    const [h]=await window.showOpenFilePicker({multiple:false,types:[{description:"Planilha Excel",accept:{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":[".xlsx"],"application/vnd.ms-excel":[".xls"]}}]});
+    const f=await h.getFile();
+    fileHandle=h; fileLastMod=f.lastModified;
+    await loadWorkbookFile(f);
+    startWatching();
+  }catch(err){
+    if(err&&err.name==="AbortError") return;
+    if(err&&(err.name==="SecurityError"||err.name==="NotAllowedError"||err.name==="TypeError")){fileInput.click();return;}
+    alert("Não foi possível ler este arquivo. Verifique se ele mantém a estrutura DATA / DESCRIÇÃO / VALOR / CHECK.\n\n"+(err?.message||err));
+    setText("fileStatus","Falha ao ler o arquivo");
+  }
+});
+fileInput.addEventListener("change",async ev=>{
+  const f=ev.target.files?.[0]; if(!f) return;
+  try{
+    fileHandle=null; clearInterval(watchTimer);
+    await loadWorkbookFile(f);
+    ev.target.value="";
+  }catch(err){
+    alert("Não foi possível ler este arquivo. Verifique se ele mantém a estrutura DATA / DESCRIÇÃO / VALOR / CHECK.\n\n"+err.message);
+    setText("fileStatus","Falha ao ler "+f.name);
+  }
+});
+document.getElementById("monthSelect").addEventListener("change",e=>{selectedMonth=e.target.value;render()});
+const LAST_KEY="tgft_last_workbook_v1";
+function saveLastWorkbook(){try{localStorage.setItem(LAST_KEY,JSON.stringify(state));return true;}catch(e){return false;}}
+function readLastWorkbook(){try{const s=localStorage.getItem(LAST_KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  const last=readLastWorkbook();
+  if(!last||!Array.isArray(last.monthly)){setText("fileStatus","Nenhuma planilha guardada ainda — clique em “Atualizar com Excel” primeiro.");return;}
+  fileHandle=null; clearInterval(watchTimer);
+  state={monthly:[],students:[],studentsByMonth:{},monthly2027:[],debts:[],debtSource:"",file:"",...last};
+  selectedMonth=getInitialMonth(); selectedDebtPos=0;
+  render();
+  setText("fileStatus",`↺ Restaurada: ${state.file}${state.loadedAt?` (carregada em ${state.loadedAt})`:""} • ${state.debtSource||""}`);
+});
+
+document.getElementById("heroLoad").addEventListener("click",()=>document.querySelector('label[for="fileInput"]').click());
+
+/* ================= INICIALIZAÇÃO ================= */
+try{const w=Number(localStorage.getItem("tgft_side"));if(w) setSideWidth(w);}catch(e){}
+render();
+setText("fileStatus","Sistema zerado — clique em “Atualizar com Excel” ou em “Restaurar última planilha”.");
+let startView="viewOverview";
+try{const v=localStorage.getItem("tgft_view");if(v&&VIEW_META[v]) startView=v;}catch(e){}
+showView(startView);
+try{if(window.matchMedia("(max-width:820px)").matches&&readLastWorkbook()) document.getElementById("resetBtn").click();}catch(e){}
+</script>
+</body>
+</html>
